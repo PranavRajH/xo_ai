@@ -30,5 +30,5 @@ def load_model():
 def train_model(model: Sequential, x_train, y_train):
     for x,y in zip(x_train, y_train):
         y = np.array([1 if(i!=0) else 0 for i in (y.reshape((9,)) - x.reshape((9,)))])
-        model.fit(x.reshape(1,3,3), y.reshape(1,9), epochs=10, verbose=0)
+        model.fit(x.reshape(1,3,3), y.reshape(1,9), epochs=500, verbose=0)
     

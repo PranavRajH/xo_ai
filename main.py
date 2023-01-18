@@ -48,7 +48,7 @@ class Board():
             if ((self.arr[i][0] == self.arr[i][1] == self.arr[i][2]) and (self.arr[i][0] != ' ')):
                 return self.arr[i][0]
             if ((self.arr[0][i] == self.arr[1][i] == self.arr[2][i]) and (self.arr[0][i] != ' ')):
-                return self.arr[i][0]
+                return self.arr[0][i]
         if ((self.arr[0][0] == self.arr[1][1] == self.arr[2][2]) and (self.arr[0][0] != ' ')):
             return self.arr[0][0]
         if ((self.arr[0][2] == self.arr[1][1] == self.arr[2][0]) and (self.arr[0][2] != ' ')):
@@ -73,7 +73,7 @@ class Board():
         self.arr = [[' ' for i in range(3)] for j in range(3)]
 
 if __name__=="__main__":
-    model = create_model()
+    model = load_model()
     board = Board()
     while True:
         board.clear()
