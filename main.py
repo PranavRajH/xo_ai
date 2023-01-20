@@ -38,8 +38,10 @@ class Board():
         while (x<0 or x>2 or y<0 or y>2 or (not self.is_place_available(x,y))):
             print(f"Trying : {count}")
             count += 1
-            x = random.randint(0,2)
-            y = random.randint(0,2)
+            predictions[0][choice] = 0
+            choice = np.argmax(predictions[0])
+            x = choice//3
+            y = choice%3
         self.arr[x][y] = player
 
 
@@ -73,7 +75,8 @@ class Board():
         self.arr = [[' ' for i in range(3)] for j in range(3)]
 
 if __name__=="__main__":
-    model = load_model()
+    model = create_model()
+    print(model.summary())
     board = Board()
     while True:
         board.clear()
@@ -87,7 +90,7 @@ if __name__=="__main__":
             if (board.winner() == 'X'):
                 board.display()
                 print("X wins")
-                train_model(model, comp, me+[board.convert()])
+                model = train_model(model, comp, me+[board.convert()])
                 break
             board.display()
             print("O turn")
@@ -96,12 +99,12 @@ if __name__=="__main__":
             if (board.winner() == 'O'):
                 board.display()
                 print("O wins")
-                train_model(model, me, comp[1:])
+                model = train_model(model, me, comp[1:])
                 break
         else:
             board.display()
             print("Draw")
-            train_model(model, comp, me)
+            model = train_model(model, comp, me)
         
         ch = input("Do you want to play again? (y/n) : ")
         if (ch == 'n'):
