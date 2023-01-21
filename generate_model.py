@@ -21,35 +21,28 @@ model = create_model()
 print(model.summary())
 count = num = 0
 
-for i in range(9):
-    combs = permutations(([0 for j in range(i)] + [1 for j in range((9-i)//2+1-i%2)] + [2 for j in range(9-i-(9-i)//2)]), 9)
-    for comb in combs:
-        arr = np.array(comb)
-        if (winner(arr.reshape((3,3))) == 1):
-            for j in arr:
-                if arr[j]==1:
-                    arr[j] = 0
-                    hot_code = np.zeros((9,))
-                    hot_code[j] = 1
-                    model.fit(arr.reshape(1,3,3), hot_code.reshape(1,9), epochs=50, verbose=0)
-        elif (winner(arr.reshape((3,3))) == 2):
-            for j in arr:
-                if arr[j]==2:
-                    arr[j] = 0
-                    hot_code = np.zeros((9,))
-                    hot_code[j] = 1
-                    model.fit(arr.reshape(1,3,3), hot_code.reshape(1,9), epochs=50, verbose=0)
-        elif (winner(arr.reshape((3,3))) == 'D'):
-            for j in arr:
-                if arr[j]!=0:
-                    arr[j] = 0
-                    hot_code = np.zeros((9,))
-                    hot_code[j] = 1
-                    model.fit(arr.reshape(1,3,3), hot_code.reshape(1,9), epochs=50, verbose=0)
+for order in permutations([0,1,2,3,4,5,6,7,8]):
+    arr = np.zeros((9,))
+    xtrain = []
+    ytrain = [arr.copy()]
+    for i,pos in enumerate(order):
+        if i%2==0:
+            arr[pos] = 1
+            xtrain.append(arr.copy())
         else:
-            count += 1
-        num += 1
-        print(num)
+            arr[pos] = 2
+            ytrain.append(arr.copy())
+        win = winner(arr.reshape((3,3)))
+        if win != None:
+            if win == 1:
+                model = train_model(model, ytrain, xtrain)
+            elif win == 2:
+                model = train_model(model, xtrain, ytrain[1:])
+            else:
+                model = train_model(model, ytrain, xtrain)
+            break
+    count += 1
+    print("%.3f"%((count/362880)*100), end='\r')
 
-print(count)
+print("Training complete")
 save_model(model)
