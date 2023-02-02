@@ -1,12 +1,11 @@
 from keras import layers, Sequential
-from pickle import dump, load
 
 import numpy as np
 
 def create_model():
     model = Sequential()
 
-    model.add(layers.Flatten(input_shape=(3,3)))
+    model.add(layers.Flatten(input_shape=(9,)))
     model.add(layers.Dense(64, activation='relu'))
     model.add(layers.Dense(128, activation='relu'))
     model.add(layers.Dense(64, activation='relu'))
@@ -19,18 +18,8 @@ def create_model():
     return model
 
 
-def save_model(model: Sequential):
-    with open("model.bin", "wb") as file:
-        dump(model, file)
-
-
-def load_model():
-    with open("model.bin", "rb") as file:
-        return load(file)
-
-
 def train_model(model: Sequential, x_train, y_train):
     for x,y in zip(x_train, y_train):
         y = np.array([1 if(i!=0) else 0 for i in (y.reshape((9,)) - x.reshape((9,)))])
-        model.fit(x.reshape(1,3,3), y.reshape(1,9), epochs=50, verbose=0)
+        model.fit(x.reshape(1,9), y.reshape(1,9), epochs=50, verbose=0)
     return model

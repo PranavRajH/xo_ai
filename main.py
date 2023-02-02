@@ -1,6 +1,7 @@
 import itertools as it
 import random
 import numpy as np
+import keras
 
 from model import *
 
@@ -31,7 +32,7 @@ class Board():
 
     def next_turn_ai(self,player: str, model: Sequential):
         count = 1
-        predictions = model.predict(self.convert().reshape(1,3,3), verbose=0)
+        predictions = model.predict(convert(self.arr).reshape(1,9), verbose=0)
         choice = np.argmax(predictions[0])
         x = choice//3
         y = choice%3
@@ -59,23 +60,40 @@ class Board():
             return 'D'
         return None
     
-    def convert(self):
-        arr = np.zeros((3,3))
-        for i in range(3):
-            for j in range(3):
-                if (self.arr[i][j] == ' '):
-                    arr[i][j] = 0
-                elif (self.arr[i][j] == 'X'):
-                    arr[i][j] = 1
-                else:
-                    arr[i][j] = 2
-        return arr
-    
     def clear(self):
         self.arr = [[' ' for i in range(3)] for j in range(3)]
 
+def convert(array):
+    arr = np.zeros((3,3), dtype="int8")
+    for i in range(3):
+        for j in range(3):
+            if (array[i][j] == ' '):
+                arr[i][j] = 0
+            elif (array[i][j] == 'X'):
+                arr[i][j] = 1
+            else:
+                arr[i][j] = 2
+    return arr
+
+def flip(arr, side: str = "horizontal"):
+    if (side=="horizontal"):
+        arr = [arr[j][::-1] for j in range(3)]
+    elif (side=="vertical"):
+        arr = arr[::-1]
+    elif (side=="diagonal"):
+        arr = [[arr[j][i] for j in range(3)] for i in range(3)]
+    elif (side=="anti-diagonal"):
+        arr = [[arr[2-j][i] for j in range(3)] for i in range(3)]
+    return arr
+
+def train_model(model, x, y):
+    for x,y in zip(x_train, y_train):
+        y = np.array([1 if(i!=0) else 0 for i in (y.reshape((9,)) - x.reshape((9,)))])
+        model.fit(x.reshape(1,9), y.reshape(1,9), epochs=50, verbose=0)
+    return model
+
 if __name__=="__main__":
-    model = create_model()
+    model = keras.models.load_model("xo.h5")
     print(model.summary())
     board = Board()
     while True:
@@ -85,29 +103,49 @@ if __name__=="__main__":
         while (board.winner() == None):
             board.display()
             print("X turn")
-            comp.append(board.convert())
+            comp.append(convert(board.arr))
             board.next_turn('X')
             if (board.winner() == 'X'):
                 board.display()
                 print("X wins")
-                model = train_model(model, comp, me+[board.convert()])
+                x_train = comp
+                y_train = me+[board.convert()]
+                model = train_model(model, x_train, y_train)
+                model = train_model(model, [convert(flip(x)) for x in x_train], [convert(flip(y)) for y in y_train])
+                model = train_model(model, [convert(flip(x, "vertical")) for x in x_train], [convert(flip(y, "vertical")) for y in y_train])
+                model = train_model(model, [convert(flip(x, "diagonal")) for x in x_train], [convert(flip(y, "diagonal")) for y in y_train])
+                model = train_model(model, [convert(flip(x, "anti-diagonal")) for x in x_train], [convert(flip(y, "anti-diagonal")) for y in y_train])
                 break
+
+            if (board.winner() == 'D'):
+                board.display()
+                print("Draw")
+                x_train = comp
+                y_train = me
+                model = train_model(model, x_train, y_train)
+                model = train_model(model, [convert(flip(x)) for x in x_train], [convert(flip(y)) for y in y_train])
+                model = train_model(model, [convert(flip(x, "vertical")) for x in x_train], [convert(flip(y, "vertical")) for y in y_train])
+                model = train_model(model, [convert(flip(x, "diagonal")) for x in x_train], [convert(flip(y, "diagonal")) for y in y_train])
+                model = train_model(model, [convert(flip(x, "anti-diagonal")) for x in x_train], [convert(flip(y, "anti-diagonal")) for y in y_train])
+                break
+
             board.display()
             print("O turn")
-            me.append(board.convert())
-            board.next_turn_ai('O', model)
+            me.append(convert(board.arr))
+            board.next_turn('O')
             if (board.winner() == 'O'):
                 board.display()
                 print("O wins")
-                model = train_model(model, me, comp[1:])
-                break
-        else:
-            board.display()
-            print("Draw")
-            model = train_model(model, comp, me)
+                x_train = me
+                y_train = comp[1:]
+                model = train_model(model, x_train, y_train)
+                model = train_model(model, [convert(flip(x)) for x in x_train], [convert(flip(y)) for y in y_train])
+                model = train_model(model, [convert(flip(x, "vertical")) for x in x_train], [convert(flip(y, "vertical")) for y in y_train])
+                model = train_model(model, [convert(flip(x, "diagonal")) for x in x_train], [convert(flip(y, "diagonal")) for y in y_train])
+                model = train_model(model, [convert(flip(x, "anti-diagonal")) for x in x_train], [convert(flip(y, "anti-diagonal")) for y in y_train])
         
         ch = input("Do you want to play again? (y/n) : ")
         if (ch == 'n'):
-            save_model(model)
+            model.save("xo.h5")
             break
     
