@@ -13,6 +13,11 @@ def next_state(state: np.array, player: int, pos: int):
 def next_player(player: int):
     return -player
 
+def is_valid_move(state: np.array, pos: int):
+    row = pos // 3
+    col = pos % 3
+    return state[row][col] == 0
+
 def is_win(state: np.array, player: int, pos: int):
     row = pos // 3
     col = pos % 3
