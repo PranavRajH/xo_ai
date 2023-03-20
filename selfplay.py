@@ -25,7 +25,7 @@ try:
         while not (is_win(board, player, pos) or is_draw(board)):
             board = next_state(board, player, pos)
             print(board)
-            player = next_player(player)
+            player = get_next_player(player)
             pred = np.array(list(model.predict(board.reshape(1, 9), verbose=0)))
             pos = np.argmax(player * pred)
             while not is_valid_move(board, pos):

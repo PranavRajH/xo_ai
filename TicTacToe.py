@@ -10,7 +10,7 @@ def next_state(state: np.array, player: int, pos: int):
     
     return state
 
-def next_player(player: int):
+def get_next_player(player: int):
     return -player
 
 def is_valid_move(state: np.array, pos: int):
@@ -19,6 +19,7 @@ def is_valid_move(state: np.array, pos: int):
     return state[row][col] == 0
 
 def is_win(state: np.array, player: int, pos: int):
+    state = np.copy(state)
     row = pos // 3
     col = pos % 3
     state[row][col] = player
@@ -40,7 +41,7 @@ if __name__ == '__main__':
         while not (is_win(board, player, pos) or is_draw(board)):
             board = next_state(board, player, pos)
             print(board)
-            player = next_player(player)
+            player = get_next_player(player)
             pos = int(input(f'{player}:'))
         else:
             if is_win(board, player, pos):
