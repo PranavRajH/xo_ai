@@ -55,7 +55,7 @@ def mcst_gen(root: Node, player: int, next_player: int) -> Node:
         if is_state_win(root.state, player):
             root.w += 1
     elif is_state_win(root.state, get_next_player(next_player)):
-        if next_player == player:
+        if get_next_player(next_player) == player:
             root.w += 1
     else:
         for pos in positions:
