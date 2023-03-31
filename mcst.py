@@ -9,11 +9,12 @@ class Node:
         self.children = list()
         self.n = 1
         self.w = 0
-        self.val = 0
 
     def __str__(self):
         return f'state: \n{self.state}\nplayer: {self.player}\nn: {self.n}\nw: {self.w}\nval: {self.val}'
 
+def get_val(total: int, num: int, wins: int) -> float:
+    return wins / num + np.sqrt(2 * np.log(total) / num)
 
 def walkdown(state: np.array, player: int, next_player: int, n: int, w: int, verbose: int = 0) -> int:
     print("walkdown")
@@ -65,15 +66,10 @@ def mcst_gen(root: Node, player: int, next_player: int) -> Node:
             root.children.append(child)
             root.n += child.n
             root.w += child.w
-        '''if root.parent:
-            total = sum([child.n for child in root.parent.children])
-        else:
-            total = 1
-        root.val = root.w / root.n + 0.5 * np.sqrt(2 * np.log(total) / root.n)'''
     return root
 
 # print(walkdown(np.array([[1,0,-1],[1,-1,0],[0,1,-1]]), -1, -1, 1, 0, 1))
-print(mcst_gen(Node(np.array([[1,0,-1],[1,-1,0],[0,1,-1]]), -1), -1, -1))
+# print(mcst_gen(Node(np.array([[1,0,-1],[1,-1,0],[0,1,-1]]), -1), -1, -1))
 
 """
     print(walkdown(np.zeros((3,3)), -1, -1, 1, 0))
