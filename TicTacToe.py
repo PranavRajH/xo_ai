@@ -27,7 +27,16 @@ def is_win(state: np.array, player: int, pos: int):
     return (np.sum(state[row, :]) == 3*player 
         or np.sum(state[:, col]) == 3*player
         or np.sum(np.diag(state)) == 3*player
-        or np.sum(np.diag(np.flip(state))) == 3*player)
+        or np.sum(np.diag(np.flip(state, 1))) == 3*player)
+
+def is_state_win(state: np.array, player: int):
+    return ((np.sum(state, axis=1) == 3*player).any()
+        or (np.sum(state, axis=0) == 3*player).any()
+        or np.sum(np.diag(state)) == 3*player
+        or np.sum(np.diag(np.flip(state, 1))) == 3*player)
+
+def possible_moves(state: np.array) -> list:
+    return [i for i in range(9) if state.reshape(-1)[i] == 0]
 
 def is_draw(state: np.array):
     return (np.sum(np.reshape(state, -1) == 0) == 0)
