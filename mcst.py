@@ -17,37 +17,41 @@ def get_val(total: int, num: int, wins: int) -> float:
     return wins / num + np.sqrt(2 * np.log(total) / num)
 
 def walkdown(state: np.array, player: int, next_player: int, n: int, w: int, verbose: int = 0) -> int:
-    print("walkdown")
     positions = possible_moves(state)
     if verbose:
         print(f'state: \n{state}\nplayer: {player}\nnext_player: {next_player}\nn: {n}\nw: {w}\npositions: {positions}')
-    if len(positions) == 1:
-        if is_win(state, player, positions[0]):
+    if len(positions) == 0:
+        if is_state_win(state, player):
             if verbose:
                 print("win")
-            return n + 1, w + 1
-        else:
+            return n, w + 1
+        if verbose:
+            print("draw")
+        return n, w
+    elif is_state_win(state, get_next_player(next_player)):
+        if get_next_player(next_player) == player:
             if verbose:
-                print("draw")
-            return n + 1, w
+                print("win")
+            return n, w + 1
+        if verbose:
+            print("lost")
+        return n, w
     else:
-        num = 0
-        wins = 0
-        print("in loop")
+        num = n
+        wins = w
+        if verbose:
+            print("in loop")
         for pos in positions:
-            num += 1
-            if is_win(state, next_player, pos):
-                if next_player == player:
-                    if verbose:
-                        print("win")
-                    wins += 1
-                continue
+            if verbose:
+                print(f'pos: {pos}')
             new_state = next_state(np.copy(state), next_player, pos)
             new_n, new_w = walkdown(np.copy(new_state), player, get_next_player(next_player), n, w)
             num += new_n
             wins += new_w
-            print(f'state: \n{new_state}\nplayer: {player}\nnext_player: {get_next_player(next_player)}\nn: {new_n}\nw: {new_w}\ncumulative n: {num}\ncumulative w: {wins}')
-        print("out loop")
+            if verbose:
+                print(f'state: \n{new_state}\nplayer: {player}\nnext_player: {get_next_player(next_player)}\nn: {new_n}\nw: {new_w}\ncumulative n: {num}\ncumulative w: {wins}')
+        if verbose:
+            print("out loop")
         return num, wins
     
 def mcst_gen(root: Node, player: int, next_player: int) -> Node:
@@ -68,7 +72,7 @@ def mcst_gen(root: Node, player: int, next_player: int) -> Node:
             root.w += child.w
     return root
 
-# print(walkdown(np.array([[1,0,-1],[1,-1,0],[0,1,-1]]), -1, -1, 1, 0, 1))
+# print(walkdown(np.array([[1,0,-1],[1,-1,0],[0,1,-1]]), -1, -1, 1, 0))
 # print(mcst_gen(Node(np.array([[1,0,-1],[1,-1,0],[0,1,-1]]), -1), -1, -1))
 
 """
