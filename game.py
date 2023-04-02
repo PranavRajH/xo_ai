@@ -17,7 +17,7 @@ def get_next_best_move(state: np.array, player: int) -> int:
     for i in range(9):
         if res[i][0] != 0:
             vals[i] = res[i][1] / res[i][0] + np.sqrt(2 * np.log(total) / res[i][0])
-    print(vals)
+    # print(vals)
     best_pos = np.argmax(vals)
     return best_pos
 
