@@ -8,6 +8,8 @@ def get_next_best_move(state: np.array, player: int) -> int:
     if len(positions) == 0:
         return best_pos
     for pos in positions:
+        if is_win(state, get_next_player(player), pos):
+            return pos
         n, w = walkdown(next_state(np.copy(state), player, pos), player, get_next_player(player), 1, 0)
         res[pos] = [n, w]
         total += n
